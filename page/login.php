@@ -16,11 +16,15 @@
 	$password_error = "";
 	$create_email_error = "";
 	$create_password_error = "";
+	$firstname_error = "";
+	$lastname_error = "";
   // muutujad väärtuste jaoks
 	$email = "";
 	$password = "";
 	$create_email = "";
 	$create_password = "";
+	$firstname="";
+	$lastname="";
 	if($_SERVER["REQUEST_METHOD"] == "POST") {
 		// *********************
 		// **** LOGI SISSE *****
@@ -67,16 +71,29 @@
 						$create_password = cleanInput($_POST["create_password"]);
 					}
 				}
-				if(	$create_email_error == "" && $create_password_error == ""){
+				
+				if (empty ($_POST["firstname"])){
+				$firstname_error = "See väli on kohustuslik!";
+			}else{
+				$firstname = test_input($_POST["firstname"]);
+			}
+			
+			if (empty ($_POST["lastname"])){
+				$lastname_error = "See väli on kohustuslik!";
+			}else{
+				$lastname = test_input($_POST["lastname"]);
+			}
+			
+				if(	$create_email_error == "" && $create_password_error == "" && $firstname_error == "" && $lastname_error == ""){
 					
 					// räsi paroolist, mille salvestame ab'i
 					$hash = hash("sha512", $create_password);
 					
-					echo "Võib kasutajat luua! Kasutajanimi on ".$create_email." ja parool on ".$create_password." ja räsi on ".$hash;
+					echo "Võib kasutajat luua! Kasutajanimi on ".$create_email." ja parool on ".$create_password." ja räsi on ".$hash .$firstname.$lastname;
 					
 					// kasutaja loomise fn, failist functions.php,
 					// saadame kaasa muutujad
-					createUser($create_email, $hash);
+					createUser($create_email, $hash, $firstname, $lastname);
 					
 				}
 		} // create if end
@@ -88,6 +105,13 @@
   	$data = htmlspecialchars($data);
   	return $data;
   }
+  
+  function test_input($data) {
+		$data = trim($data);
+		$data = stripslashes($data);
+		$data = htmlspecialchars($data);
+		return $data;
+	}
 	
 	
 	
@@ -99,18 +123,20 @@
 </head>
 <body>
 
-  <h2>Log in</h2>
+  <h2>Logi sisse</h2>
   <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" >
   	<input name="email" type="email" placeholder="E-post" value="<?php echo $email; ?>"> <?php echo $email_error; ?><br><br>
   	<input name="password" type="password" placeholder="Parool" value="<?php echo $password; ?>"> <?php echo $password_error; ?><br><br>
-  	<input type="submit" name="login" value="Log in">
+  	<input type="submit" name="login" value="Logi sisse">
   </form>
 
-  <h2>Create user</h2>
+  <h2>Registreeri</h2>
   <form action="<?php echo htmlspecialchars($_SERVER["PHP_SELF"]);?>" method="post" >
   	<input name="create_email" type="email" placeholder="E-post" value="<?php echo $create_email; ?>"> <?php echo $create_email_error; ?><br><br>
   	<input name="create_password" type="password" placeholder="Parool"> <?php echo $create_password_error; ?> <br><br>
-  	<input type="submit" name="create" value="Create user">
+  	<input name="firstname" type="text" placeholder="Eesnimi"> <?php echo $firstname_error;?> <br><br>
+	<input name="lastname" type="text" placeholder="Perekonnanimi"> <?php echo $lastname_error;?> <br><br>
+	<input type="submit" name="create" value="Loo kasutaja">
   </form>
 <body>
 <html>
